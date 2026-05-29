@@ -1,0 +1,38 @@
+# Web framework
+fastapi
+uvicorn[standard]
+python-dotenv
+
+# Data & Finance
+yfinance
+pandas
+numpy
+requests
+httpx
+
+# Financial analysis
+scipy
+statsmodels
+arch
+scikit-learn
+xgboost
+lightgbm
+PyPortfolioOpt
+
+# Deep Learning (optional)
+# torch
+# darts
+
+# Database
+sqlalchemy
+alembic
+
+# Utils
+pydantic>=2.0
+pydantic-settings
+plotly
+cachetools
+
+# Testing
+pytest
+pytest-asyncio

@@ -1,0 +1,40 @@
+╔══════════════════════════════════════════════════════╗
+║          THE GREAT ANALYSIS — GUIDE DE SESSION       ║
+╚══════════════════════════════════════════════════════╝
+
+── DÉMARRER UNE SESSION ───────────────────────────────
+
+1. Ouvrir un terminal dans le dossier du projet :
+   cd C:\projet\the-great-analysis
+
+2. Lancer Claude Code :
+   claude
+
+3. Dire ce qu'on veut faire — c'est tout.
+   Claude relit CLAUDE.md et la mémoire automatiquement.
+
+── LANCER LES SERVEURS (si test en live) ──────────────
+
+Terminal 1 — Backend :
+   cd C:\projet\the-great-analysis\backend
+   .\venv\Scripts\Activate.ps1
+   uvicorn app.main:app --reload
+   python -m uvicorn app.main:app --reload
+   → http://localhost:8000
+
+Terminal 2 — Frontend :
+   cd C:\projet\the-great-analysis\frontend
+   npm run dev
+   → http://localhost:5173
+
+── TERMINER UNE SESSION ───────────────────────────────
+
+Dire : "sauvegarde la session" ou "fin de session"
+Claude mettra à jour CLAUDE.md et les fichiers mémoire.
+
+── NOTES ──────────────────────────────────────────────
+
+- Pas besoin de réexpliquer le projet à chaque fois
+- CLAUDE.md = mémoire technique du projet (stack, état)
+- memory/ = mémoire persistante sur les préférences
+- Le contexte est restauré automatiquement au démarrage

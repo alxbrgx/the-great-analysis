@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-background text-slate-100;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3a4558;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4a5568;
+  }
+
+  /* Subtle selection highlight */
+  ::selection {
+    background: rgba(16, 185, 129, 0.25);
+    color: #f0fdf4;
+  }
+
+  /* Form inputs default styling */
+  input, select, textarea {
+    background-color: #222a38;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-card border border-border rounded-xl p-5;
+  }
+
+  .card-sm {
+    @apply bg-card border border-border rounded-lg p-4;
+  }
+
+  .badge-buy {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-900/40 text-emerald-300 border border-emerald-700/60;
+  }
+  .badge-sell {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-rose-900/40 text-rose-300 border border-rose-700/60;
+  }
+  .badge-hold {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-amber-900/40 text-amber-300 border border-amber-700/60;
+  }
+
+  .metric-label {
+    @apply text-xs text-muted leading-none mb-1;
+  }
+  .metric-value {
+    @apply text-sm font-mono text-slate-200;
+  }
+
+  /* Accent-8 helper (not in tailwind) */
+  .bg-accent\/8 {
+    background-color: rgba(16, 185, 129, 0.08);
+  }
+}
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}

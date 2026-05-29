@@ -1,0 +1,21 @@
+# Python
+backend/venv/
+backend/.env
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.egg-info/
+backend/.pytest_cache/
+backend/tga_dev.db
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Data
+data/cache/*.json
+data/exports/
+
+# General
+.DS_Store
+*.pyc
+.env

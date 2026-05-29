@@ -1,0 +1,25 @@
+# Render blueprint for the FastAPI backend.
+# Deploy: render.com → New → Blueprint → connect this repo.
+services:
+  - type: web
+    name: tga-backend
+    runtime: python
+    rootDir: backend
+    # NOTE: the "free" plan sleeps after ~15 min idle, so the first request from
+    # a recruiter takes ~50s to wake. Bump to "starter" (~$7/mo) for an always-on,
+    # instant 1-click demo. Change the line below to: plan: starter
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      # Set to the deployed frontend origin, e.g. https://the-great-analysis.vercel.app
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Free FRED API key (reference rates). Optional but recommended.
+      - key: FRED_API_KEY
+        sync: false
+      # Optional: richer 10-K/10-Q data
+      - key: FMP_API_KEY
+        sync: false
