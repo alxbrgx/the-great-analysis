@@ -47,7 +47,7 @@ export const suggestAssets = (ticker: string) =>
   api.get(`/portfolio/suggest/${ticker}`).then(r => r.data)
 
 export const getCompanyNews = (ticker: string) =>
-  api.get(`/search/ticker/${ticker}/news`).then(r => r.data)
+  api.get(`/ticker/${ticker}/news`).then(r => r.data)
 
 export const getDebtRatios = (ticker: string) =>
   api.get(`/debt/${ticker}/ratios`).then(r => r.data)

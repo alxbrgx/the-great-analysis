@@ -2,8 +2,60 @@ from fastapi import APIRouter, Query, HTTPException
 from app.utils.data_fetcher import search_tickers, get_ticker_info
 import yfinance as yf
 import time
+import requests
+import xml.etree.ElementTree as ET
+from email.utils import parsedate_to_datetime
+from urllib.parse import quote_plus
 
 router = APIRouter()
+
+
+def _google_news(query: str, limit: int = 12) -> list[dict]:
+    """Search Google News RSS by free-text query (a company name).
+
+    Unlike yfinance, this is a keyword search rather than a ticker lookup, so it
+    returns results for listed *and* unlisted companies. No API key required.
+    Returns headline + source + date + link (no thumbnails or summaries).
+    """
+    if not query:
+        return []
+    url = (
+        "https://news.google.com/rss/search?q="
+        + quote_plus(query)
+        + "&hl=en-US&gl=US&ceid=US:en"
+    )
+    try:
+        resp = requests.get(url, timeout=6, headers={"User-Agent": "Mozilla/5.0"})
+        resp.raise_for_status()
+        root = ET.fromstring(resp.content)
+    except Exception:
+        return []
+
+    articles = []
+    for item in root.findall(".//item")[:limit]:
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        if not title or not link:
+            continue
+        source_el = item.find("source")
+        publisher = (source_el.text or "").strip() if source_el is not None else ""
+        # Google appends " - {source}" to titles; strip it for a clean headline.
+        if publisher and title.endswith(f" - {publisher}"):
+            title = title[: -(len(publisher) + 3)].strip()
+        try:
+            published_at = parsedate_to_datetime(item.findtext("pubDate") or "").isoformat()
+        except Exception:
+            published_at = ""
+        articles.append({
+            "title": title,
+            "publisher": publisher,
+            "link": link,
+            "published_at": published_at,
+            "summary": "",
+            "thumbnail": "",
+            "source_feed": "google",
+        })
+    return articles
 
 
 @router.get("/search")
@@ -28,11 +80,18 @@ async def ticker_overview(ticker: str):
 
 @router.get("/ticker/{ticker}/news")
 async def ticker_news(ticker: str, limit: int = 12):
-    """Recent news articles for a ticker via yfinance."""
+    """Recent news for a ticker: yfinance (rich, but often empty) merged with a
+    Google News search on the company name (fills the gaps, works for any name)."""
+    ticker = ticker.upper()
+    articles = []
+    name = ""
+
+    # 1) yfinance — has thumbnails + summaries, but is ticker-based and frequently empty.
     try:
-        t = yf.Ticker(ticker.upper())
+        t = yf.Ticker(ticker)
+        info = t.info or {}
+        name = info.get("longName") or info.get("shortName") or ""
         raw = t.news or []
-        articles = []
         for item in raw[:limit]:
             content = item.get("content", {})
             # yfinance >=0.2.x wraps news in a 'content' dict
@@ -50,6 +109,7 @@ async def ticker_news(ticker: str, limit: int = 12):
                     "published_at": content.get("pubDate", ""),
                     "summary": content.get("summary", ""),
                     "thumbnail": thumbnail,
+                    "source_feed": "yfinance",
                 })
             else:
                 # Older yfinance format
@@ -62,7 +122,19 @@ async def ticker_news(ticker: str, limit: int = 12):
                     "summary": "",
                     "thumbnail": (item.get("thumbnail", {}).get("resolutions", [{}])[0].get("url", "")
                                   if item.get("thumbnail") else ""),
+                    "source_feed": "yfinance",
                 })
-        return {"ticker": ticker.upper(), "articles": articles}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        pass  # never let yfinance break the endpoint — Google News still runs below
+
+    # 2) Google News RSS by company name — fills gaps and works for unlisted names too.
+    query = name or ticker
+    seen = {(a.get("title") or "").strip().lower() for a in articles}
+    for g in _google_news(query, limit=limit):
+        key = g["title"].strip().lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        articles.append(g)
+
+    return {"ticker": ticker, "articles": articles[:limit], "query": query}
