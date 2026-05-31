@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { getCompanyNews } from '../../utils/api'
+import { getCompanyNews, getNewsByName } from '../../utils/api'
 import { ExternalLink, Newspaper } from 'lucide-react'
 
 interface Props {
-  ticker: string
+  ticker?: string  // listed company: news looked up by stock symbol
+  query?: string   // unlisted company: news searched by company name
+  label?: string   // heading label (defaults to ticker / query)
 }
 
 function timeAgo(dateStr: string): string {
@@ -16,12 +18,14 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-export default function NewsFeed({ ticker }: Props) {
+export default function NewsFeed({ ticker, query, label }: Props) {
+  const term = query ?? ticker ?? ''
+  const heading = label ?? term
   const { data, isLoading } = useQuery({
-    queryKey: ['news', ticker],
-    queryFn: () => getCompanyNews(ticker),
+    queryKey: ['news', query ? `q:${query}` : `t:${ticker}`],
+    queryFn: () => (query ? getNewsByName(query) : getCompanyNews(ticker!)),
     staleTime: 300_000,
-    enabled: !!ticker,
+    enabled: !!term,
   })
 
   const articles = data?.articles ?? []
@@ -30,7 +34,7 @@ export default function NewsFeed({ ticker }: Props) {
     <div className="card space-y-4">
       <div className="flex items-center gap-2">
         <Newspaper size={14} className="text-muted" />
-        <h2 className="text-sm font-medium text-gray-200">News — {ticker}</h2>
+        <h2 className="text-sm font-medium text-gray-200">News — {heading}</h2>
       </div>
 
       {isLoading && (
@@ -49,7 +53,7 @@ export default function NewsFeed({ ticker }: Props) {
       )}
 
       {!isLoading && articles.length === 0 && (
-        <p className="text-xs text-muted py-4 text-center">No news available for {ticker}.</p>
+        <p className="text-xs text-muted py-4 text-center">No news available for {heading}.</p>
       )}
 
       <div className="divide-y divide-border/40">

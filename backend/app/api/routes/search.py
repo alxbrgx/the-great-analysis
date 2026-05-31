@@ -138,3 +138,13 @@ async def ticker_news(ticker: str, limit: int = 12):
         articles.append(g)
 
     return {"ticker": ticker, "articles": articles[:limit], "query": query}
+
+
+@router.get("/news/search")
+async def news_search(q: str = Query(..., min_length=1), limit: int = 12):
+    """News for any company by name — listed or unlisted — via Google News RSS.
+
+    Used by the Private Credit workbench, where deals are typed by company name
+    and have no ticker. Being a name search (not a symbol lookup), it returns
+    results for private / sponsor-owned companies too."""
+    return {"query": q, "articles": _google_news(q, limit=limit)}

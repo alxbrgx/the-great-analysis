@@ -9,6 +9,7 @@ import {
 import { useWatchlistStore } from '../store/useWatchlistStore'
 import { analyzePrivateCredit } from '../utils/api'
 import ExcelImportModal, { type PeriodicRow } from '../components/ui/ExcelImportModal'
+import NewsFeed from '../components/ui/NewsFeed'
 import { getSectorBenchmarks, SPONSORS } from '../data/sponsors'
 import { DEAL_EXAMPLES } from '../data/dealExamples'
 
@@ -380,7 +381,7 @@ export default function PrivateCreditPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'ratios' | 'leverage' | 'stress' | 'covenants' | 'memo' | 'monitoring'>('ratios')
+  const [activeTab, setActiveTab] = useState<'ratios' | 'leverage' | 'stress' | 'covenants' | 'memo' | 'monitoring' | 'news'>('ratios')
   const [savedDealId, setSavedDealId] = useState<string | null>(null)
   const [saveToast, setSaveToast] = useState<string | null>(null)
   const [importOpen, setImportOpen] = useState(false)
@@ -1145,6 +1146,7 @@ export default function PrivateCreditPage() {
                 ['stress', 'Stress Test'],
                 ['covenants', 'Covenants'],
                 ['memo', 'Credit Memo'],
+                ['news', 'News'],
                 ...(importedPeriodic && importedPeriodic.length > 0 ? [['monitoring', 'Monitoring']] : []),
               ] as [string, string][]).map(([tab, label]) => (
                 <button
@@ -1524,6 +1526,18 @@ export default function PrivateCreditPage() {
                     </table>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Tab: News (searched by company name — works for unlisted companies) */}
+            {activeTab === 'news' && (
+              <div className="space-y-3">
+                <p className="text-xs text-muted/60 leading-relaxed">
+                  Recent news for <span className="text-slate-300">{result.company.name}</span>, searched by
+                  company name via Google News — so it works for private / sponsor-owned companies that have no
+                  stock ticker. Headlines link to the original source.
+                </p>
+                <NewsFeed query={result.company.name} label={result.company.name} />
               </div>
             )}
 

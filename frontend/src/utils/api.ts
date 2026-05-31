@@ -49,6 +49,10 @@ export const suggestAssets = (ticker: string) =>
 export const getCompanyNews = (ticker: string) =>
   api.get(`/ticker/${ticker}/news`).then(r => r.data)
 
+// News by free-text company name (private credit / unlisted companies, no ticker)
+export const getNewsByName = (name: string) =>
+  api.get('/news/search', { params: { q: name } }).then(r => r.data)
+
 export const getDebtRatios = (ticker: string) =>
   api.get(`/debt/${ticker}/ratios`).then(r => r.data)
 
